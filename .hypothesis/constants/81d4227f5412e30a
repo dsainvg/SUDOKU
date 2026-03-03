@@ -1,0 +1,4 @@
+# file: /app/generator.py
+# hypothesis_version: 6.151.9
+
+[0.05, 0.5, 120, 135, 150, 200, 'Easy', 'Expert', 'Hard', 'Medium']

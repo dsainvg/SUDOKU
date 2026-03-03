@@ -1,0 +1,4 @@
+# file: /app/dataset_loader.py
+# hypothesis_version: 6.151.9
+
+['-', '.', 'A', 'Unsupported size', '__main__', 'difficulty_metadata', 'puzzles', 'solutions', '|']
