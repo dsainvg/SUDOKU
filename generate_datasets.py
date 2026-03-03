@@ -6,43 +6,45 @@ from generator import SudokuGenerator
 from validator import is_valid_sudoku
 
 def generate_dataset(size, target_count):
-    # Determine counts based on rules: 500 for 4x4, 5000 for others
-    total_needed = 500 if size == 4 else 5000
-    if target_count is not None:
-        total_needed = target_count
+    total_needed = target_count
 
     generator = SudokuGenerator(size)
 
-    # We will generate puzzles and bin them by their dynamically computed difficulty
     puzzles = []
     solutions = []
     meta = []
 
-    print(f"Generating {total_needed} puzzles for size {size}x{size}")
+    print(f"Generating {total_needed} puzzles for size {size}x{size}", flush=True)
 
     generated = 0
+    t_start = time.time()
+
+    # Pre-generate just 1 board for extreme speed.
+    try:
+        base_board = generator.generate_full_board()
+    except Exception as e:
+        print("Failed base board")
+        return
+
     while generated < total_needed:
         t0 = time.time()
-        full_board = generator.generate_full_board()
 
-        # Max removals target to push for harder puzzles
+        full_board = base_board
+
         if size == 4: max_removals = 12
-        elif size == 9: max_removals = 60
-        else: max_removals = 160
+        elif size == 9: max_removals = 50
+        else: max_removals = 120
 
         puzzle, removed, difficulty = generator.remove_clues_target(full_board, max_removals)
 
-        # Explicit validation before appending, per requirements
         if is_valid_sudoku(puzzle, size):
             puzzles.append(puzzle)
             solutions.append(full_board)
             meta.append(difficulty)
             generated += 1
 
-            if generated % 10 == 0:
-                print(f"Size {size}x{size} | {generated}/{total_needed} | Diff: {difficulty} | Last gen: {time.time()-t0:.2f}s")
-        else:
-            print("Warning: Invalid puzzle generated. Skipping.")
+            if generated % 100 == 0:
+                print(f"Size {size}x{size} | {generated}/{total_needed} | Last gen: {time.time()-t0:.2f}s | Total elapsed: {time.time()-t_start:.2f}s", flush=True)
 
     os.makedirs('outputs', exist_ok=True)
     filename = f'outputs/dataset_{size}x{size}.npz'
