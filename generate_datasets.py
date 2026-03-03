@@ -19,17 +19,16 @@ def generate_dataset(size, target_count):
     generated = 0
     t_start = time.time()
 
-    # Pre-generate just 1 board for extreme speed.
-    try:
-        base_board = generator.generate_full_board()
-    except Exception as e:
-        print("Failed base board")
-        return
-
     while generated < total_needed:
         t0 = time.time()
 
-        full_board = base_board
+        # We must generate a FULLY UNIQUE solution board for every single puzzle
+        # as requested, rather than reusing them to prioritize correctness and uniqueness over speed.
+        try:
+            full_board = generator.generate_full_board()
+        except Exception as e:
+            print("Failed base board", flush=True)
+            continue
 
         if size == 4: max_removals = 12
         elif size == 9: max_removals = 50
